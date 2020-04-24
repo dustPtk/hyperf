@@ -129,7 +129,8 @@ $result = $producer->produce($message);
 php bin/hyperf.php gen:amqp-consumer DemoConsumer
 ```
 
-在 DemoConsumer 文件中，我们可以修改 `@Consumer` 注解对应的字段来替换对应的 `exchange`、`routingKey` 和 `queue`。
+在 DemoConsumer 文件中，我们可以修改 `@Consumer` 注解对应的字段来替换对应的 `exchange`、`routingKey` 、 `queue`和`nums`。
+其中nums为启动的消费者子进程数目，1为启动一个消费子进程，2为启动两个消费子进程
 其中 `$data` 就是解析后的消息数据。
 示例如下。
 
@@ -151,6 +152,17 @@ use Hyperf\Amqp\Result;
  */
 class DemoConsumer extends ConsumerMessage
 {
+
+    public function __construct()
+    {
+        //修改rabbitmq的Basic.qos，使队列每次发一个消息给一个消费者
+        $this->qos = [
+            "prefetch_size" => null,
+            "prefetch_count" => 1,
+            "global" => null
+        ];
+    }
+    
     public function consume($data): string
     {
         print_r($data);
